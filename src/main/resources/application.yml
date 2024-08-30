@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/Vannthy
+keycloak:
+  auth-server-url: http://localhost:8080
+  realm: Vannthy
+  clientId: vannthy-rest-api
+  clientSecret: VhFm5Eh7EuxFtWCeJfTEtwFbowcWnnom
+
+server:
+  port: 8081
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: vannthy-rest-api
+      client-secret: VhFm5Eh7EuxFtWCeJfTEtwFbowcWnnom
