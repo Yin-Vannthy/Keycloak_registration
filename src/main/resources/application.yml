@@ -3,9 +3,10 @@ spring:
     name: keycloak
   security:
     oauth2:
-      resourceserver:
+      resource-server:
         jwt:
           issuer-uri: http://localhost:8080/realms/Vannthy
+
 keycloak:
   auth-server-url: http://localhost:8080
   realm: Vannthy
@@ -14,6 +15,7 @@ keycloak:
 
 server:
   port: 8081
+
 springdoc:
   swagger-ui:
     oauth:

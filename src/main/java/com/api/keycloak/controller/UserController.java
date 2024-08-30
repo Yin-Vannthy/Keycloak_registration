@@ -21,13 +21,13 @@ public class UserController {
         return keycloakService.getUser(userName);
     }
 
-    @PutMapping(path = "/update/{userId}")
+    @PutMapping(path = "update/{userId}")
     public String updateUser(@PathVariable("userId") String userId,   @RequestBody UserRequest userRequest){
         keycloakService.updateUser(userId, userRequest);
         return "User Details Updated Successfully.";
     }
 
-    @DeleteMapping(path = "/{userId}")
+    @DeleteMapping(path = "{userId}")
     public String deleteUser(@PathVariable("userId") String userId){
         keycloakService.deleteUser(userId);
         return "User Deleted Successfully.";

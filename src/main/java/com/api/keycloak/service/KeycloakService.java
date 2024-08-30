@@ -21,14 +21,16 @@ public class KeycloakService {
     @Value("${keycloak.realm}")
     private String realm;
     
-    private UserRepresentation credential(UserRequest userDTO) {
+    private UserRepresentation credential(UserRequest userRequest) {
         CredentialRepresentation credential = Credentials
-                .createPasswordCredentials(userDTO.getPassword());
+                .createPasswordCredentials(userRequest.getPassword());
+
         UserRepresentation user = new UserRepresentation();
-        user.setUsername(userDTO.getUserName());
-        user.setFirstName(userDTO.getFirstname());
-        user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmailId());
+
+        user.setUsername(userRequest.getUserName());
+        user.setFirstName(userRequest.getFirstname());
+        user.setLastName(userRequest.getLastName());
+        user.setEmail(userRequest.getEmail());
         user.setCredentials(Collections.singletonList(credential));
         return user;
     }

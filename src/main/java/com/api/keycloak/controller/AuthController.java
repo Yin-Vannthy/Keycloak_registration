@@ -17,13 +17,13 @@ public class AuthController {
         return "User Added Successfully.";
     }
 
-    @GetMapping("/verification-link/{userId}")
+    @GetMapping("verification-link/{userId}")
     public String sendVerificationLink(@PathVariable("userId") String userId){
         keycloakService.sendVerificationLink(userId);
         return "Verification Link Send to Registered E-mail Id.";
     }
 
-    @GetMapping("/reset-password/{userId}")
+    @GetMapping("reset-password/{userId}")
     public String sendResetPassword(@PathVariable("userId") String userId){
         keycloakService.sendResetPassword(userId);
         return "Reset Password Link Send Successfully to Registered E-mail Id.";
