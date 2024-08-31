@@ -71,11 +71,7 @@ public class KeycloakService {
 
     public UserDto updateUser(String userId, UserRequest userRequest) {
         UserRepresentation user = credential(userRequest);
-
         getUsersResource().get(userId).update(user);
-
-        getUsersResource().get(userId)
-                .resetPassword(getCredentialRepresentation(userRequest.getPassword()));
 
         return modelMapper.map(getUsersResource().get(userId), UserDto.class);
     }
