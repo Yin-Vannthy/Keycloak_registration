@@ -1,12 +1,17 @@
 package com.api.keycloak.service;
 
+import com.api.keycloak.model.dto.UserDto;
+import com.api.keycloak.model.request.PasswordRequest;
 import com.api.keycloak.model.request.UserRequest;
 import com.api.keycloak.security.Credentials;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,57 +22,81 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KeycloakService {
     private final Keycloak keycloak;
-    
+    private final ModelMapper modelMapper;
+
     @Value("${keycloak.realm}")
     private String realm;
-    
-    private UserRepresentation credential(UserRequest userRequest) {
-        CredentialRepresentation credential = Credentials
-                .createPasswordCredentials(userRequest.getPassword());
 
+    private UsersResource getUsersResource() {
+        return keycloak.realm(realm).users();
+    }
+
+    private CredentialRepresentation getCredentialRepresentation(String password){
+        return Credentials.createPasswordCredentials(password);
+    }
+    private UserRepresentation credential(UserRequest userRequest) {
         UserRepresentation user = new UserRepresentation();
 
         user.setUsername(userRequest.getUserName());
         user.setFirstName(userRequest.getFirstname());
         user.setLastName(userRequest.getLastName());
         user.setEmail(userRequest.getEmail());
-        user.setCredentials(Collections.singletonList(credential));
+
+        user.setCredentials(Collections.singletonList(getCredentialRepresentation(userRequest.getPassword())));
+
         return user;
     }
 
-    public void addUser(UserRequest userRequest) {
+    public UserDto addUser(UserRequest userRequest) {
         UserRepresentation user = credential(userRequest);
         user.setEnabled(true);
 
-        UsersResource usersResource = keycloak.realm(realm).users();
-        usersResource.create(user);
+        Response response = getUsersResource().create(user);
+        UserRepresentation userRepresentation = getUsersResource().get(CreatedResponseUtil.getCreatedId(response)).toRepresentation();
+
+        return modelMapper.map(userRepresentation, UserDto.class);
     }
 
-    public List<UserRepresentation> getUser(String userName) {
-        UsersResource usersResource = keycloak.realm(realm).users();
-        return usersResource.search(userName, true);
+    public UserDto getCurrentUser(String userId) {
+        UserRepresentation userRepresentation = getUsersResource().get(userId).toRepresentation();
+
+        return modelMapper.map(userRepresentation, UserDto.class);
     }
 
-    public void updateUser(String userId, UserRequest userDTO) {
-        UserRepresentation user = credential(userDTO);
+    public UserDto getUserByName(String userName) {
+        UserRepresentation user = getUsersResource().searchByUsername(userName, true).getFirst();
 
-        UsersResource usersResource = keycloak.realm(realm).users();
-        usersResource.get(userId).update(user);
+        return modelMapper.map(user, UserDto.class);
+    }
+
+    public UserDto updateUser(String userId, UserRequest userRequest) {
+        UserRepresentation user = credential(userRequest);
+
+        getUsersResource().get(userId).update(user);
+
+        getUsersResource().get(userId)
+                .resetPassword(getCredentialRepresentation(userRequest.getPassword()));
+
+        return modelMapper.map(getUsersResource().get(userId), UserDto.class);
     }
 
     public void deleteUser(String userId) {
-        UsersResource usersResource = keycloak.realm(realm).users();
-        usersResource.get(userId).remove();
+        getUsersResource().get(userId).remove();
     }
 
-    public void sendVerificationLink(String userId) {
-        UsersResource usersResource = keycloak.realm(realm).users();
-        usersResource.get(userId).sendVerifyEmail();
+    public void sendEmailVerification(String userId) {
+       getUsersResource().get(userId).sendVerifyEmail();
     }
 
     public void sendResetPassword(String userId) {
-        UsersResource usersResource = keycloak.realm(realm).users();
-        usersResource.get(userId)
+        getUsersResource().get(userId)
                 .executeActionsEmail(List.of("UPDATE_PASSWORD"));
+    }
+
+    public void resetPassword(String userId, PasswordRequest passwordRequest) {
+        CredentialRepresentation credential = Credentials
+                .createPasswordCredentials(passwordRequest.getPassword());
+        getUsersResource().get(userId)
+                .resetPassword(credential);
     }
 }

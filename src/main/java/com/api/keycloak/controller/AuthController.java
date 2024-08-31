@@ -1,5 +1,7 @@
 package com.api.keycloak.controller;
 
+import com.api.keycloak.model.dto.UserDto;
+import com.api.keycloak.model.request.PasswordRequest;
 import com.api.keycloak.model.request.UserRequest;
 import com.api.keycloak.service.KeycloakService;
 import lombok.AllArgsConstructor;
@@ -12,20 +14,25 @@ public class AuthController {
     private final KeycloakService keycloakService;
 
     @PostMapping("register")
-    public String addUser(@RequestBody UserRequest userRequest){
-        keycloakService.addUser(userRequest);
-        return "User Added Successfully.";
+    public UserDto addUser(@RequestBody UserRequest userRequest){
+        return keycloakService.addUser(userRequest);
     }
 
-    @GetMapping("verification-link/{userId}")
-    public String sendVerificationLink(@PathVariable("userId") String userId){
-        keycloakService.sendVerificationLink(userId);
-        return "Verification Link Send to Registered E-mail Id.";
+    @PutMapping("send-email-verification/{userId}")
+    public String sendEmailVerification(@PathVariable("userId") String userId){
+        keycloakService.sendEmailVerification(userId);
+        return "verification sent Successfully.";
     }
 
-    @GetMapping("reset-password/{userId}")
+    @PutMapping("send-reset-password-by-link/{userId}")
     public String sendResetPassword(@PathVariable("userId") String userId){
         keycloakService.sendResetPassword(userId);
         return "Reset Password Link Send Successfully to Registered E-mail Id.";
+    }
+
+    @PutMapping("reset-password/{userId}")
+    public String resetPassword(@PathVariable("userId") String userId, @RequestBody PasswordRequest passwordRequest){
+        keycloakService.resetPassword(userId, passwordRequest);
+        return "Reset Password Successfully.";
     }
 }

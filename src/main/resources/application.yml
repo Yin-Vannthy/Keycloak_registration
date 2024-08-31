@@ -15,9 +15,12 @@ keycloak:
 
 server:
   port: 8081
+  error:
+    include-stacktrace: never
 
 springdoc:
   swagger-ui:
     oauth:
       client-id: vannthy-rest-api
       client-secret: VhFm5Eh7EuxFtWCeJfTEtwFbowcWnnom
+
