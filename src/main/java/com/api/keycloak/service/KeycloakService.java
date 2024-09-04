@@ -52,7 +52,9 @@ public class KeycloakService {
         user.setEnabled(true);
 
         Response response = getUsersResource().create(user);
-        UserRepresentation userRepresentation = getUsersResource().get(CreatedResponseUtil.getCreatedId(response)).toRepresentation();
+        UserRepresentation userRepresentation = getUsersResource()
+                .get(CreatedResponseUtil.getCreatedId(response))
+                .toRepresentation();
 
         return modelMapper.map(userRepresentation, UserDto.class);
     }
@@ -73,7 +75,7 @@ public class KeycloakService {
         UserRepresentation user = credential(userRequest);
         getUsersResource().get(userId).update(user);
 
-        return modelMapper.map(getUsersResource().get(userId), UserDto.class);
+        return modelMapper.map(getUsersResource().get(userId).toRepresentation(), UserDto.class);
     }
 
     public void deleteUser(String userId) {
@@ -92,6 +94,7 @@ public class KeycloakService {
     public void resetPassword(String userId, PasswordRequest passwordRequest) {
         CredentialRepresentation credential = Credentials
                 .createPasswordCredentials(passwordRequest.getPassword());
+
         getUsersResource().get(userId)
                 .resetPassword(credential);
     }

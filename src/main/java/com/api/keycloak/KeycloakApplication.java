@@ -21,6 +21,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         name = "oauth",
         type = SecuritySchemeType.OAUTH2,
         flows = @OAuthFlows(
+                clientCredentials = @OAuthFlow(
+                        tokenUrl = "http://localhost:8080/realms/Vannthy/protocol/openid-connect/token"
+                ),
                 password = @OAuthFlow(
                         tokenUrl = "http://localhost:8080/realms/Vannthy/protocol/openid-connect/token"
                 )
